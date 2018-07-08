@@ -98,7 +98,7 @@ router.post('/edit', authenticateEmployee('admin'), (req, res) => {
             });
 
             const params = {
-                Bucket: 'drhilo',
+                Bucket: process.env.BUCKET,
                 Key: image,
                 Body: file.buffer
             };
