@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Shop</title>
+    <link rel="shortcut icon" href="logo.png" />
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <nav id="navBar" class="navbar navbar-expand-sm navbar-dark bg-dark p-0" hidden>
+        <div class="container">
+            <a href="index.html" class="navbar-brand">Shop</a>
+            <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item px-2">
+                        <a href="index.html" class="nav-link">Current Orders</a>
+                    </li>
+                    <li class="nav-item px-2">
+                        <a href="categories.html" class="nav-link">Categories</a>
+                    </li>
+                    <li class="nav-item px-2">
+                        <a href="products.html" class="nav-link">Products</a>
+                    </li>
+                    <li class="nav-item px-2">
+                        <a href="orders.html" class="nav-link">Orders</a>
+                    </li>
+                    <li class="nav-item px-2">
+                        <a href="contact_us.html" class="nav-link active">Contact Us</a>
+                    </li>
+                </ul>
+
+                <div id="settingsPanel" class="ml-auto">
+
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="body">
+
+    </div>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/lodash.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDxPV77JB9gIJNpFdBWvuYOgWSjT8xDMbk"></script>
+    <script>
+
+
+
+    </script>
+    <script>
+        const host = 'https://fattoosh.herokuapp.com';
+        var changed = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+        const notLoggedInBody = `
+                <div id="main-header" class="bg-primary text-white mb-2 py-3">
+                <div class="container">
+                    <div class="row">
+                    <div class="col-md-6">
+                        <h1>
+                        <i class="fa fa-gear"></i> Login</h1>
+                    </div>
+                    </div>
+                </div>
+                </div>
+                <div class="container">
+                <div class="row">
+                    <div class="col-5">
+                    <div class="form-group">
+                        <h4 class="text-muted mt-5">Username</h4>
+                        <div class="d-flex justify-content-center flex-column">
+                        <input id="username" type="text" class="form-control" />
+                        <p id="usernameError" style="color: red; font-size: 12px" hidden>Username Not Found.</p>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-5">
+                    <div class="form-group">
+                        <h4 class="text-muted mt-1">Password</h4>
+                        <div class="d-flex justify-content-center flex-column">
+                        <input id="password" type="password" class="form-control" />
+                        <p id="passwordError" style="color: red; font-size: 12px" hidden>Wrong Password.</p>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <p id="disabledError" style="color: red; font-size: 12px" hidden>Employee Disabled.</p>
+                
+                <button id="loginBtn" class="btn-primary btn mt-4" onclick="loginButtonPress()">
+                    Login
+                </button>
+                </div>
+            `;
+
+
+        // localStorage.loggedIn = 'false';
+        const loggedIn = localStorage.loggedIn === 'true';
+
+
+        function onLogoutPress() {
+            fetch(`${host}/employees/logout`, {
+                method: 'POST',
+                headers: {
+                    'x-auth': localStorage.token
+                }
+            })
+                .then(response => {
+                    if (response.status === 200) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('username');
+                        localStorage.removeItem('privilege');
+                        localStorage.loggedIn = 'false';
+
+                        location.reload();
+                    }
+                });
+        }
+
+        function loginButtonPress() {
+            document.getElementById('usernameError').setAttribute('hidden', true);
+            document.getElementById('passwordError').setAttribute('hidden', true);
+            document.getElementById('disabledError').setAttribute('hidden', true);
+
+            const usernameValue = document.getElementById('username').value;
+            const passwordValue = document.getElementById('password').value;
+
+            const body = JSON.stringify({ name: usernameValue, password: passwordValue });
+
+            fetch(`${host}/employees/login`, {
+                body,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    switch (response.status) {
+                        case 200:
+                            response
+                                .json()
+                                .then(employee => {
+                                    localStorage.setItem('loggedIn', 'true');
+                                    localStorage.setItem('username', employee.name);
+                                    localStorage.setItem('token', employee.token);
+                                    localStorage.setItem('privilege', employee.privilege);
+
+                                    location.reload();
+                                });
+                            break;
+
+                        case 404:
+                            document.getElementById('usernameError').removeAttribute('hidden');
+                            break;
+
+                        case 601:
+                            document.getElementById('passwordError').removeAttribute('hidden');
+                            break;
+
+                        case 603:
+                            document.getElementById('disabledError').removeAttribute('hidden');
+                    }
+                });
+
+        }
+
+
+        if (loggedIn) {
+
+            fetchNotifications();
+
+            const privilege = localStorage.privilege;
+
+            document.getElementById('navBar').removeAttribute('hidden');
+
+
+            const guestPanel = `
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a id="logout" href="#" class="nav-link" onclick="onLogoutPress()">
+                            <i class="fa fa-sign-out"></i> Logout
+                        </a>
+                    </li>
+
+                              <li id="active" class="ml-3 nav-item" style="margin-top: 7px" hidden>
+            <a href="notifications.html" class="text-danger">
+              <h4><i class="fa fa-exclamation"></i></h4>
+            </a>
+          </li>
+
+          <li id="inactive" class="ml-3 nav-item" style="margin-top: 8px">
+            <a href="notifications.html" class="text-muted">
+              <h4><i class="fa fa-exclamation"></i></h4>
+            </a>
+          </li>
+                </ul>
+            `;
+
+            const adminPanel = `
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item dropdown mr-3">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-user"></i> Welcome Admin
+                        </a>
+                        <div class="dropdown-menu">
+                            <a href="users.html" class="dropdown-item">
+                            Users
+                            </a>
+                            <a href="employees.html" class="dropdown-item">
+                            Employees
+                            </a>
+                            <a href="deliverypersons.html" class="dropdown-item">
+                            Delivery Persons
+                            </a>
+                        </div>
+                        </li>
+                        <li class="nav-item">
+                            <a id="logout" href="#" class="nav-link" onclick="onLogoutPress()">
+                                <i class="fa fa-sign-out"></i> Logout
+                            </a>
+                        </li>
+
+                                  <li id="active" class="ml-3 nav-item" style="margin-top: 7px" hidden>
+            <a href="notifications.html" class="text-danger">
+              <h4><i class="fa fa-exclamation"></i></h4>
+            </a>
+          </li>
+
+          <li id="inactive" class="ml-3 nav-item" style="margin-top: 8px">
+            <a href="notifications.html" class="text-muted">
+              <h4><i class="fa fa-exclamation"></i></h4>
+            </a>
+          </li>
+                    </ul>
+                `;
+
+            document.getElementById('settingsPanel').innerHTML = privilege === 'admin' ? adminPanel : guestPanel;
+
+
+
+            if (privilege === 'admin') {
+                const body = `
+                <header id="main-header" class="bg-primary text-white mb-2 py-3">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h1>
+                            <i class="fa fa-gear"></i> Contact Us</h1>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <form class="container mt-3">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-4">
+                        <label for="nameEn">Name English</label>
+                        <input type="text" id="name_en" class="form-control" placeholder="Enter name" onChange="change(0)">
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="nameEn">Name Arabic</label>
+                        <input type="text" id="name_ar" class="form-control" placeholder="Enter name" onChange="change(1)">
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="address1en">Address 1 English</label>
+                        <input type="text" id="address_1_en" class="form-control" placeholder="Enter address" onChange="change(2)">
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="address1ar">Address 1 Arabic</label>
+                        <input type="text" id="address_1_ar" class="form-control" placeholder="Enter address" onChange="change(3)">
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="address2en">Address 2 English</label>
+                        <input type="text" id="address_2_en" class="form-control" placeholder="Enter address" onChange="change(4)">
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="address2ar">Address 2 Arabic</label>
+                        <input type="text" id="address_2_ar" class="form-control" placeholder="Enter address" onChange="change(5)">
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="no1">Phone Number 1</label>
+                        <input type="text" id="phone_number_1" class="form-control" placeholder="Enter first phone number" onChange="change(6)">
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="no2">Phone Number 2</label>
+                        <input type="text" id="phone_number_2" class="form-control" placeholder="Enter second phone number" onChange="change(7)">
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="address1">Address 1</label>
+                        <input type="text" id="address_1" class="form-control" placeholder="Enter address 1 url" onChange="change(8)">
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="address2">Address 2</label>
+                        <input type="text" id="address_2" class="form-control" placeholder="Enter address 2 url" onChange="change(9)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="image">Image</label>
+                        <br />
+                        <input id="selectImage" type="file" onChange="onImageChange()" />
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="inStateFee">In Amman Delivery Fee</label>
+                        <input type="text" id="in_state_fee" class="form-control" onChange="change(11)">
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="inStateFeeLimit">In Amman Delivery Fee Limit</label>
+                        <input type="text" id="in_state_fee_limit" class="form-control" onChange="change(12)">
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="outStateFee">Out Amman Delivery Fee</label>
+                        <input type="text" id="out_state_fee" class="form-control" onChange="change(13)">
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="outStateFeeLimit">Out Amman Delivery Fee Limit</label>
+                        <input type="text" id="out_state_fee_limit" class="form-control" onChange="change(14)">
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <!-- <input type="button" value="Cancel" class="btn btn-secondary btn-lg"> -->
+                        <input type="button" value="Clear" class="btn btn-secondary btn-lg mb-5" />
+                        <input type="button" value="Save" class="btn btn-primary btn-lg mb-5" onclick="save()" />
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <img id="imageView" class="img-fluid rounded" style="margin-left: 100px; margin-top: -10px;">
+                </div>
+            </div>
+
+        </form>
+                `;
+
+                document.getElementById('body').innerHTML = body;
+
+                fetch(`${host}/contactUs/en`)
+                    .then(response => {
+                        if (response.status === 200) {
+                            response
+                                .json()
+                                .then(data => {
+                                    console.log(data);
+
+                                    document.getElementById('imageView').setAttribute('src', `${data.image}`);
+
+                                    document.getElementById('name_en').setAttribute('placeholder', `${data.name}`)
+                                    document.getElementById('name_ar').setAttribute('placeholder', `${data.name_ar}`)
+                                    document.getElementById('phone_number_1').setAttribute('placeholder', `${data.phone_number_1}`)
+                                    document.getElementById('phone_number_2').setAttribute('placeholder', `${data.phone_number_2}`)
+                                    document.getElementById('address_1_en').setAttribute('placeholder', `${data.address_1}`)
+                                    document.getElementById('address_1_ar').setAttribute('placeholder', `${data.address_1_ar}`)
+                                    document.getElementById('address_2_en').setAttribute('placeholder', `${data.address_2}`)
+                                    document.getElementById('address_2_ar').setAttribute('placeholder', `${data.address_2_ar}`)
+                                    document.getElementById('in_state_fee').setAttribute('placeholder', `${data.in_state_delivery_fee}`);
+                                    document.getElementById('in_state_fee_limit').setAttribute('placeholder', `${data.in_state_delivery_fee_limit}`);
+                                    document.getElementById('out_state_fee').setAttribute('placeholder', `${data.out_state_delivery_fee}`);
+                                    document.getElementById('out_state_fee_limit').setAttribute('placeholder', `${data.out_state_delivery_fee_limit}`);
+                                    
+                                });
+                        } else if (response.status === 600 || response.status === 602) {
+                            onLogoutPress();
+                        }
+                    });
+            } else {
+                const body = `
+                <div class="container">
+        <div class="row justify-content-center align-items-center flex-column" style="height: 400px">
+            <h1 class="display-4 text-muted">Not Authorized!</h1>
+            <h4 class="text-muted">Please sign in as an admin</h1>
+        </div>
+    </div>
+                `;
+
+                document.getElementById('body').innerHTML = body;
+            }
+        } else {
+            document.getElementById('body').innerHTML = notLoggedInBody;
+        }
+
+
+        function change(index) {
+            changed[index] = 1;
+        }
+
+        function onImageChange() {
+            change(10);
+            document.getElementById('imageView').setAttribute('src', document.getElementById('selectImage').files[0].location);
+
+            var tmppath = URL.createObjectURL(document.getElementById('selectImage').files[0]);
+            $("#imageView").fadeIn("fast").attr('src', tmppath);
+        }
+
+        function save() {
+            let flag = false;
+            const formData = new FormData();
+
+            if (changed[0]) {
+                formData.append('name_en', document.getElementById('name_en').value);
+                flag = true;
+            }
+
+            if (changed[1]) {
+                formData.append('name_ar', document.getElementById('name_ar').value);
+                flag = true;
+            }
+
+            if (changed[2]) {
+                formData.append('address_1_en', document.getElementById('address_1_en').value);
+                flag = true;
+            }
+
+            if (changed[3]) {
+                formData.append('address_1_ar', document.getElementById('address_1_ar').value);
+                flag = true;
+            }
+
+            if (changed[4]) {
+                formData.append('address_2_en', document.getElementById('address_2_en').value);
+                flag = true;
+            }
+
+            if (changed[5]) {
+                formData.append('address_2_ar', document.getElementById('address_2_ar').value);
+                flag = true;
+            }
+
+            if (changed[6]) {
+                formData.append('phone_number_1', document.getElementById('phone_number_1').value);
+                flag = true;
+            }
+
+            if (changed[7]) {
+                formData.append('phone_number_2', document.getElementById('phone_number_2').value);
+                flag = true;
+            }
+
+            if (changed[8]) {
+                const link = document.getElementById('address_1').value;
+                const phase1 = _.split(link, '/@');
+                const phase2 = _.split(phase1[1], '/');
+                const phase3 = _.split(phase2[0], ',');
+                const latitude = phase3[0];
+                const longitude = phase3[1];
+                console.log(latitude, longitude);
+
+                formData.append('address_1_longitude', longitude);
+                formData.append('address_1_latitude', latitude);
+                flag = true;
+            }
+
+            if (changed[9]) {
+                const link = document.getElementById('address_2').value;
+                const phase1 = _.split(link, '/@');
+                const phase2 = _.split(phase1[1], '/');
+                const phase3 = _.split(phase2[0], ',');
+                const latitude = phase3[0];
+                const longitude = phase3[1];
+                console.log(latitude, longitude);
+
+                formData.append('address_2_longitude', longitude);
+                formData.append('address_2_latitude', latitude);
+                flag = true;
+            }
+
+            if (changed[10]) {
+                formData.append('type', 'contact us');
+                const image = document.getElementById('selectImage').files[0];
+                formData.append('image', image, image.name);
+                flag = true;
+            }
+
+            if (changed[11]) {
+                formData.append('in_state_delivery_fee', document.getElementById('in_state_fee').value);
+                flag = true;
+            }
+
+            if (changed[12]) {
+                formData.append('in_state_delivery_fee_limit', document.getElementById('in_state_fee_limit').value);
+                flag = true;
+            }
+
+            if (changed[13]) {
+                formData.append('out_state_delivery_fee', document.getElementById('out_state_fee').value);
+                flag = true;
+            }
+
+            if (changed[14]) {
+                formData.append('out_state_delivery_fee_limit', document.getElementById('out_state_fee_limit').value);
+                flag = true;
+            }
+
+            if (flag) {
+                fetch(`${host}/contactUs/edit`, {
+                    body: formData,
+                    method: 'POST',
+                    headers: {
+                        'x-auth': localStorage.token
+                    }
+                })
+                    .then(response => {
+                        if (response.status === 600 || response.status === 602) {
+                            onLogoutPress();
+                        }
+                    });
+
+                // cancel();
+                location.reload();
+            }
+        }
+
+
+
+        function fetchNotifications() {
+            setInterval(() => {
+                fetch(`${host}/notifications`, {
+                    method: 'GET',
+                    headers: {
+                        'x-auth': localStorage.token
+                    }
+                })
+                    .then(response => {
+                        if (response.status === 200) {
+                            response
+                                .json()
+                                .then(notifications => {
+                                    const activeNotifications = _.filter(notifications, item => !item.dismissed);
+                                    if (activeNotifications.length > 0) {
+                                        document.getElementById('active').removeAttribute('hidden');
+                                        document.getElementById('inactive').setAttribute('hidden', true);
+                                    } else {
+                                        document.getElementById('active').setAttribute('hidden', true);
+                                        document.getElementById('inactive').removeAttribute('hidden');
+                                    }
+                                });
+                        } else if (response.status === 600 || response.status === 602) {
+                            onLogoutPress();
+                        }
+                    });
+
+            }, 5 * 1000);
+
+            fetch(`${host}/notifications`, {
+                method: 'GET',
+                headers: {
+                    'x-auth': localStorage.token
+                }
+            })
+                .then(response => {
+                    if (response.status === 200) {
+                        response
+                            .json()
+                            .then(notifications => {
+                                const activeNotifications = _.filter(notifications, item => !item.dismissed);
+                                if (activeNotifications.length > 0) {
+                                    document.getElementById('active').removeAttribute('hidden');
+                                    document.getElementById('inactive').setAttribute('hidden', true);
+                                } else {
+                                    document.getElementById('active').setAttribute('hidden', true);
+                                    document.getElementById('inactive').removeAttribute('hidden');
+                                }
+                            });
+                    } else if (response.status === 600 || response.status === 602) {
+                        onLogoutPress();
+                    }
+                });
+        }
+
+
+    </script>
+
+</body>
+
+</html>

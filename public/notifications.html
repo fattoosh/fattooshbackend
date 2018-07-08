@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta https-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Shop</title>
+  <link rel="shortcut icon" href="logo.png" />
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <nav id="navBar" class="navbar navbar-expand-sm navbar-dark bg-dark p-0" hidden>
+    <div class="container">
+      <a href="index.html" class="navbar-brand">Shop</a>
+      <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item px-2">
+            <a href="index.html" class="nav-link">Current Orders</a>
+          </li>
+          <li class="nav-item px-2">
+            <a href="categories.html" class="nav-link">Categories</a>
+        </li>
+          <li class="nav-item px-2">
+            <a href="products.html" class="nav-link">Products</a>
+          </li>
+          <li class="nav-item px-2">
+            <a href="orders.html" class="nav-link">Orders</a>
+          </li>
+          <li class="nav-item px-2">
+            <a href="contact_us.html" class="nav-link">Contact Us</a>
+          </li>
+        </ul>
+
+        <div id="settingsPanel" class="ml-auto">
+
+        </div>
+
+
+      </div>
+    </div>
+  </nav>
+
+  <div id="body">
+
+
+    <header id="main-header" class="bg-primary text-white mb-2 py-3">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6">
+            <h1>
+              <i class="fa fa-gear"></i> Current Orders</h1>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section id="posts">
+
+      <div class="card">
+        <div class="container">
+          <table class="table table-striped" id='activeTable'>
+            <thead class="bg-dark text-light">
+              <tr>
+                <th>Product</th>
+                <th>Current Stock</th>
+                <th>Dismiss</th>
+              </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 100px">
+        <div class="container">
+          <table class="table table-striped" id='dismissedTable'>
+            <thead class="bg-dark text-light">
+              <tr>
+                <th>Product</th>
+                <th>Stock</th>
+                <th>Dismissed By</th>
+              </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+  </div>
+  </section>
+
+  </div>
+
+  <footer id="main-footer" class="bg-dark text-white mt-5 py-2 fixed-bottom">
+    <div class="conatiner">
+      <div class="row">
+        <div class="col">
+          <p class="lead text-center">Copyright &copy; 2018 Dr. Hilo</p>
+        </div>
+      </div>
+
+  </footer>
+
+  <script src="js/jquery.min.js"></script>
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/lodash.js"></script>
+  <script>
+    const host = 'https://fattoosh.herokuapp.com';
+
+    const loggedInBody = `
+    
+  `;
+
+    const notLoggedInBody = `
+                <div id="main-header" class="bg-primary text-white mb-2 py-3">
+                <div class="container">
+                    <div class="row">
+                    <div class="col-md-6">
+                        <h1>
+                        <i class="fa fa-gear"></i> Login</h1>
+                    </div>
+                    </div>
+                </div>
+                </div>
+                <div class="container">
+                <div class="row">
+                    <div class="col-5">
+                    <div class="form-group">
+                        <h4 class="text-muted mt-5">Username</h4>
+                        <div class="d-flex justify-content-center flex-column">
+                        <input id="username" type="text" class="form-control" />
+                        <p id="usernameError" style="color: red; font-size: 12px" hidden>Username Not Found.</p>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-5">
+                    <div class="form-group">
+                        <h4 class="text-muted mt-1">Password</h4>
+                        <div class="d-flex justify-content-center flex-column">
+                        <input id="password" type="password" class="form-control" />
+                        <p id="passwordError" style="color: red; font-size: 12px" hidden>Wrong Password.</p>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <p id="disabledError" style="color: red; font-size: 12px" hidden>Employee Disabled.</p>
+                
+                <button id="loginBtn" class="btn-primary btn mt-4" onclick="loginButtonPress()">
+                    Login
+                </button>
+                </div>
+            `;
+
+
+    // localStorage.loggedIn = 'false';
+    const loggedIn = localStorage.loggedIn === 'true';
+    const privilege = localStorage.privilege;
+
+    function onLogoutPress() {
+      fetch(`${host}/employees/logout`, {
+        method: 'POST',
+        headers: {
+          'x-auth': localStorage.token
+        }
+      })
+        .then(response => {
+          if (response.status === 200) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            localStorage.removeItem('privilege');
+            localStorage.loggedIn = 'false';
+
+            location.reload();
+          }
+        });
+    }
+
+    function loginButtonPress() {
+      document.getElementById('usernameError').setAttribute('hidden', true);
+      document.getElementById('passwordError').setAttribute('hidden', true);
+      document.getElementById('disabledError').setAttribute('hidden', true);
+
+      const usernameValue = document.getElementById('username').value;
+      const passwordValue = document.getElementById('password').value;
+
+      const body = JSON.stringify({ name: usernameValue, password: passwordValue });
+
+      fetch(`${host}/employees/login`, {
+        body,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+        .then(response => {
+          switch (response.status) {
+            case 200:
+              response
+                .json()
+                .then(employee => {
+                  localStorage.setItem('loggedIn', 'true');
+                  localStorage.setItem('username', employee.name);
+                  localStorage.setItem('token', employee.token);
+                  localStorage.setItem('privilege', employee.privilege);
+
+                  location.reload();
+                });
+              break;
+
+            case 404:
+              document.getElementById('usernameError').removeAttribute('hidden');
+              break;
+
+            case 601:
+              document.getElementById('passwordError').removeAttribute('hidden');
+              break;
+
+            case 603:
+              document.getElementById('disabledError').removeAttribute('hidden');
+          }
+        });
+
+    }
+
+    // document.getElementById('body').innerHTML = loggedIn ? loggedInBody : notLoggedInBody;
+
+    if (loggedIn) {
+      document.getElementById('navBar').removeAttribute('hidden');
+
+      const guestPanel = `
+      <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+          <a id="logout" href="#" class="nav-link" onclick="onLogoutPress()">
+            <i class="fa fa-sign-out"></i> Logout
+          </a>
+          </li>
+
+          <li id="active" class="ml-3 nav-item" style="margin-top: 7px" hidden>
+            <a href="notifications.html" class="text-danger">
+              <h4><i class="fa fa-exclamation"></i></h4>
+            </a>
+          </li>
+          </ul>
+      `;
+
+      const adminPanel = `
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item dropdown mr-3">
+              <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-user"></i> Welcome Admin
+              </a>
+              <div class="dropdown-menu">
+                <a href="users.html" class="dropdown-item">
+                  Users
+                </a>
+                <a href="employees.html" class="dropdown-item">
+                  Employees
+                </a>
+                <a href="deliverypersons.html" class="dropdown-item">
+                  Delivery Persons
+                </a>
+              </div>
+            </li>
+            <li class="nav-item">
+                <a id="logout" href="notifications.html" class="nav-link" onclick="onLogoutPress()">
+                    <i class="fa fa-sign-out"></i> Logout
+                  </a>
+            </li>
+          </ul>
+      `;
+      console.log(localStorage.privilege);
+      document.getElementById('settingsPanel').innerHTML = privilege === 'admin' ? adminPanel : guestPanel;
+
+
+
+
+      function populateTable() {
+        fetch(`${host}/notifications`, {
+          method: 'GET',
+          headers: {
+            'x-auth': localStorage.token
+          }
+        })
+          .then(response => {
+            if (response.status === 200) {
+              response
+                .json()
+                .then(notifications => {
+                  const activeNotifications = _.filter(notifications, item => !item.dismissed);
+                  const dismissedNotifications = _.filter(notifications, item => item.dismissed);
+                  
+                  var r = new Array(), j = -1;
+                  for (var i = 0, size = activeNotifications.length; i < size; i++) {
+                    r[++j] = `<tr style="table-warning"><td scope="row">`;
+                    r[++j] = activeNotifications[i].product_name;
+                    r[++j] = '</td><td>';
+                    r[++j] = activeNotifications[i].current_stock;
+                    r[++j] = '</td><td>';
+                    r[++j] = `<Button class="btn btn-primary" onclick="dismiss(${activeNotifications[i].id})">Dismiss</Button>`;
+                    r[++j] = '</td></tr>';
+                  }
+                  $('#activeTable').append(r.join(''));
+
+                  var f = new Array(), m = -1;
+                  for (var i = 0, size = dismissedNotifications.length; i < size; i++) {
+                    f[++m] = `<tr style="table-warning"><td scope="row">`;
+                    f[++m] = dismissedNotifications[i].product_name;
+                    f[++m] = '</td><td>';
+                    f[++m] = dismissedNotifications[i].current_stock;
+                    f[++m] = '</td><td>';
+                    f[++m] = dismissedNotifications[i].username;
+                    f[++m] = '</td></tr>';
+                  }
+                  $('#dismissedTable').append(f.join(''));
+
+                });
+            } else if (response.status === 600 || response.status === 602) {
+              onLogoutPress();
+            }
+          });
+      }
+
+
+
+
+
+      populateTable();
+      setInterval(() => {
+        document.getElementById('activeTable').innerHTML = `
+            <thead class="bg-dark text-light">
+              <tr>
+                <th>Product</th>
+                <th>Current Stock</th>
+                <th>Dismiss</th>
+              </tr>
+          </thead>
+          <tbody>
+          </tbody>
+      `;
+
+        document.getElementById('dismissedTable').innerHTML = `
+            <thead class="bg-dark text-light">
+              <tr>
+                <th>Product</th>
+                <th>Current Stock</th>
+                <th>Dismissed By</th>
+              </tr>
+          </thead>
+          <tbody>
+          </tbody>
+      `;
+
+        populateTable();
+      }, 8 * 1000);
+
+      function dismiss(id) {
+        const body = JSON.stringify({
+          id,
+          username: localStorage.username
+        })
+
+        fetch(`${host}/notifications/dismiss`, {
+          body,
+          method: 'POST',
+          headers: {
+            'x-auth': localStorage.token,
+            'Content-Type': 'application/json'
+          }
+        })
+          .then(response => {
+            if (response.status === 200) {
+              location.reload();
+            } else if (response.status === 600 || response.status === 602) {
+              onLogoutPress();
+            }
+          })
+      }
+
+    }
+  </script>
+</body>
+
+</html>

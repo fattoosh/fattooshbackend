@@ -1,0 +1,26 @@
+{
+  "test": {
+    "PORT": 9000,
+    "JAWSDB_URL": "localhost",
+    "JAWSDB_USER": "root",
+    "JAWSDB_PASSWORD": "root",
+    "JAWSDB": "DRHILO_DEV",
+    "JWT_SECRET": "FattooshDrHilo",
+    "HASH_SALT": "YousefSamir",
+    "BUCKET": "drhilo",
+    "ACCESS_KEY_ID": "AKIAIDABVQMF7NX725JQ",
+    "SECRET_ACCESS_KEY": "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"
+  },
+  "development": {
+    "PORT": 9000,
+    "JAWSDB_URL": "localhost",
+    "JAWSDB_USER": "root",
+    "JAWSDB_PASSWORD": "root",
+    "JAWSDB": "DRHILO_DEV",
+    "JWT_SECRET": "FattooshDrHilo",
+    "HASH_SALT": "YousefSamir",
+    "BUCKET": "drhilo",
+    "ACCESS_KEY_ID": "AKIAIDABVQMF7NX725JQ",
+    "SECRET_ACCESS_KEY": "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"
+  }
+}

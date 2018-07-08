@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Shop</title>
+    <link rel="shortcut icon" href="logo.png" />
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <nav id="navBar" class="navbar navbar-expand-sm navbar-dark bg-dark p-0" hidden>
+        <div class="container">
+            <a href="index.html" class="navbar-brand">Shop</a>
+            <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item px-2">
+                        <a href="index.html" class="nav-link">Current Orders</a>
+                    </li>
+                    <li class="nav-item px-2">
+                        <a href="categories.html" class="nav-link">Categories</a>
+                    </li>
+                    <li class="nav-item px-2">
+                        <a href="products.html" class="nav-link">Products</a>
+                    </li>
+                    <li class="nav-item px-2">
+                        <a href="orders.html" class="nav-link">Orders</a>
+                    </li>
+                    <li class="nav-item px-2">
+                        <a href="contact_us.html" class="nav-link">Contact Us</a>
+                    </li>
+                </ul>
+
+                <div id="settingsPanel" class="ml-auto">
+
+                </div>
+
+
+            </div>
+        </div>
+    </nav>
+
+    <div id="body">
+
+    </div>
+
+    <footer id="main-footer" class="bg-dark text-white fixed-bottom">
+        <div class="conatiner">
+            <div class="row">
+                <div class="col">
+                    <p class="lead text-center mt-3">Copyright &copy; 2018 Dr. Hilo</p>
+                </div>
+            </div>
+
+    </footer>
+
+
+    <!-- POST MODAL -->
+    <div class="modal fade" id="editEmployee">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Edit Employee</h5>
+                    <button class="close" data-dismiss="modal" onClick="cancel()">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input id="editName" type="text" class="form-control" onChange="changed[0] = 1;">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="privilege">Privilege</label>
+                            <select class="form-control text-muted" id="selectPrivilege" onChange="changed[1] = 1">
+                                <option value="1">Admin</option>
+                                <option value="2">Guest</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="min">Password</label>
+                            <div class="d-flex justify-content-center">
+                                <input id="editPassword" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" type="password" class="form-control"
+                                    onChange="changed[2] = 1">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="min">Disabled</label>
+                            <div class="d-flex justify-content-center">
+                                <input id="editDisabled" type="checkbox" class="form-control" onChange="changed[3] = 1" onclick="check()">
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal" onClick="cancel()">Close</button>
+                    <button id="saveBtn" class="btn btn-primary" onClick="save()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addEmployee">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Add Employee</h5>
+                    <button class="close" data-dismiss="modal" onClick="cancelAdd()">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input id="editNameAdd" type="text" class="form-control" onChange="changedAdd[0] = 1;">
+                            <p hidden id="editNameError" style="color: red; font-size: 12px">Name must be set.</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="privilege">Privilege</label>
+                            <select class="form-control text-muted" id="selectPrivilegeAdd" onChange="changedAdd[1] = 1">
+                                <option>select</option>
+                                <option value="1">Admin</option>
+                                <option value="2">Guest</option>
+                            </select>
+                            <p hidden id="selectPrivilegeError" style="color: red; font-size: 12px">Privilege must be set.</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <div class="d-flex justify-content-center">
+                                <input id="editPasswordAdd" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" type="password" class="form-control"
+                                    onChange="changedAdd[2] = 1">
+                            </div>
+                            <p hidden id="editPasswordError" style="color: red; font-size: 12px">Password must be set.</p>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal" onClick="cancelAdd()">Close</button>
+                    <button id="OkBtn" class="btn btn-primary" onClick="add()">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/lodash.js"></script>
+    <script>
+        const host = 'https://fattoosh.herokuapp.com';
+
+        const changed = [0, 0, 0, 0];
+        const changedAdd = [0, 0, 0];
+
+        let loggedInBody;
+
+        const notLoggedInBody = `
+                <div id="main-header" class="bg-primary text-white mb-2 py-3">
+                <div class="container">
+                    <div class="row">
+                    <div class="col-md-6">
+                        <h1>
+                        <i class="fa fa-gear"></i> Login</h1>
+                    </div>
+                    </div>
+                </div>
+                </div>
+                <div class="container">
+                <div class="row">
+                    <div class="col-5">
+                    <div class="form-group">
+                        <h4 class="text-muted mt-5">Username</h4>
+                        <div class="d-flex justify-content-center flex-column">
+                        <input id="username" type="text" class="form-control" />
+                        <p id="usernameError" style="color: red; font-size: 12px" hidden>Username Not Found.</p>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-5">
+                    <div class="form-group">
+                        <h4 class="text-muted mt-1">Password</h4>
+                        <div class="d-flex justify-content-center flex-column">
+                        <input id="password" type="password" class="form-control" />
+                        <p id="passwordError" style="color: red; font-size: 12px" hidden>Wrong Password.</p>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+
+                <p id="disabledError" style="color: red; font-size: 12px" hidden>Employee Disabled.</p>
+                
+                <button id="loginBtn" class="btn-primary btn mt-4" onclick="loginButtonPress()">
+                    Login
+                </button>
+                </div>
+            `;
+
+
+        // localStorage.loggedIn = 'false';
+        const loggedIn = localStorage.loggedIn === 'true';
+
+
+        function onLogoutPress() {
+            fetch(`${host}/employees/logout`, {
+                method: 'POST',
+                headers: {
+                    'x-auth': localStorage.token
+                }
+            })
+                .then(response => {
+                    if (response.status === 200) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('username');
+                        localStorage.removeItem('privilege');
+                        localStorage.loggedIn = 'false';
+
+                        location.reload();
+                    }
+                });
+        }
+
+        function loginButtonPress() {
+            document.getElementById('usernameError').setAttribute('hidden', true);
+            document.getElementById('passwordError').setAttribute('hidden', true);
+            document.getElementById('disabledError').setAttribute('hidden', true);
+
+            const usernameValue = document.getElementById('username').value;
+            const passwordValue = document.getElementById('password').value;
+
+            const body = JSON.stringify({ name: usernameValue, password: passwordValue });
+
+            fetch(`${host}/employees/login`, {
+                body,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    switch (response.status) {
+                        case 200:
+                            response
+                                .json()
+                                .then(employee => {
+                                    localStorage.setItem('loggedIn', 'true');
+                                    localStorage.setItem('username', employee.name);
+                                    localStorage.setItem('token', employee.token);
+                                    localStorage.setItem('privilege', employee.privilege);
+
+                                    location.reload();
+                                });
+                            break;
+
+                        case 404:
+                            document.getElementById('usernameError').removeAttribute('hidden');
+                            break;
+
+                        case 601:
+                            document.getElementById('passwordError').removeAttribute('hidden');
+                            break;
+
+                        case 603:
+                            document.getElementById('disabledError').removeAttribute('hidden');
+                    }
+                });
+
+        }
+
+        if (loggedIn) {
+            fetchNotifications();
+
+
+            document.getElementById('navBar').removeAttribute('hidden');
+
+            const privilege = localStorage.privilege;
+
+            if (privilege === 'admin') {
+                loggedInBody = `
+
+        <header id="main-header" class="bg-primary text-white mb-2 py-3">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-11">
+                        <h1>
+                            <i class="fa fa-gear"></i> Employees</h1>
+                    </div>
+                    <div class="col-md-1">
+                        <h1>
+                            <a id="addBtn">
+                                <i class="fa fa-plus" data-toggle="modal" data-target="#addEmployee"></i>
+                            </a>
+                        </h1>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+
+        <!-- POSTS -->
+        <section id="posts">
+            <div class="card" style="margin-bottom: 50px">
+                <div class="container">
+
+                    <input style="  
+                                                        background-size: 28px 28px;
+                                                        background-image: url('./css/searchicon.png'); /* Add a search icon to input */
+                                                        background-position: 10px 12px; /* Position the search icon */
+                                                        background-repeat: no-repeat; /* Do not repeat the icon image */
+                                                        width: 100%; /* Full-width */
+                                                        font-size: 16px; /* Increase font-size */
+                                                        padding: 12px 20px 12px 45px; /* Add some padding */
+                                                        border: 1px solid #ddd; /* Add a grey border */
+                                                        margin-bottom: 12px; /* Add some space below the input */
+                                                        margin-top: 12px;
+                                                        " type="text" id="search" onkeyup="searchChanged()" placeholder="Search for employees..">
+
+                    <table class="table table-striped" id='dataTable'>
+                        <thead class="thead-inverse">
+                            <tr>
+                                <th>Name</th>
+                                <th>Privilege</th>
+                                <th>Disabled</th>
+                                <th>Edit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+    </div>
+
+    </section>
+                `;
+            } else {
+                loggedInBody = `
+                    <div class="container">
+                        <div class="row justify-content-center align-items-center flex-column" style="height: 400px">
+                            <h1 class="display-4 text-muted">Not Authorized!</h1>
+                            <h4 class="text-muted">Please sign in as an admin</h1>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('body').innerHTML = loggedInBody;
+
+            const guestPanel = `
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a id="logout" href="#" class="nav-link" onclick="onLogoutPress()">
+                            <i class="fa fa-sign-out"></i> Logout
+                        </a>
+                    </li>
+
+                              <li id="active" class="ml-3 nav-item" style="margin-top: 7px" hidden>
+            <a href="notifications.html" class="text-danger">
+              <h4><i class="fa fa-exclamation"></i></h4>
+            </a>
+          </li>
+
+          <li id="inactive" class="ml-3 nav-item" style="margin-top: 8px">
+            <a href="notifications.html" class="text-muted">
+              <h4><i class="fa fa-exclamation"></i></h4>
+            </a>
+          </li>
+                </ul>
+            `;
+
+            const adminPanel = `
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item dropdown mr-3">
+                        <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+                            <i class="fa fa-user"></i> Welcome ${localStorage.username}
+                        </a>
+                        <div class="dropdown-menu">
+                            <a href="users.html" class="dropdown-item">
+                            Users
+                            </a>
+                            <a href="employees.html" class="dropdown-item">
+                            Employees
+                            </a>
+                            <a href="deliverypersons.html" class="dropdown-item">
+                            Delivery Persons
+                            </a>
+                        </div>
+                        </li>
+                        <li class="nav-item">
+                            <a id="logout" href="#" class="nav-link" onclick="onLogoutPress()">
+                                <i class="fa fa-sign-out"></i> Logout
+                            </a>
+                        </li>
+
+                                  <li id="active" class="ml-3 nav-item" style="margin-top: 7px" hidden>
+            <a href="notifications.html" class="text-danger">
+              <h4><i class="fa fa-exclamation"></i></h4>
+            </a>
+          </li>
+
+          <li id="inactive" class="ml-3 nav-item" style="margin-top: 8px">
+            <a href="notifications.html" class="text-muted">
+              <h4><i class="fa fa-exclamation"></i></h4>
+            </a>
+          </li>
+                    </ul>
+                `;
+
+            document.getElementById('settingsPanel').innerHTML = privilege === 'admin' ? adminPanel : guestPanel;
+
+            let employeeID;
+            let checked;
+            let username;
+
+            fetch(`${host}/employees`, {
+                method: 'GET',
+                headers: {
+                    'x-auth': localStorage.token
+                }
+            })
+                .then(response => {
+                    console.log(response);
+                    if (response.status === 200) {
+                        response
+                            .json()
+                            .then(data => {
+                                var r = new Array(), j = -1;
+                                for (var i = 0, size = data.length; i < size; i++) {
+                                    r[++j] = `<tr style="table-warning"><td scope="row">`;
+                                    r[++j] = data[i].name;
+                                    r[++j] = '</td><td>';
+                                    r[++j] = data[i].privilege;
+                                    r[++j] = '</td><td>';
+                                    r[++j] = `<input disabled type="checkbox" ${data[i].disabled === 1 ? 'checked' : ''} />`;
+                                    r[++j] = '</td><td>';
+                                    r[++j] = `<Button class="btn btn-primary" data-toggle="modal" data-target="#editEmployee" onClick="loadEmployeeDetails(${data[i].id}, '${data[i].name}')"><i class="fa fa-pencil" ></i></Button>`;
+                                    r[++j] = '</td></tr>';
+                                }
+                                $('#dataTable').append(r.join(''));
+                            });
+                    } else if (response.status === 600 || response.status === 602) {
+                        onLogoutPress();
+                    }
+                });
+
+        } else {
+            document.getElementById('body').innerHTML = notLoggedInBody;
+        }
+
+
+        function loadEmployeeDetails(id, name) {
+            employeeID = id;
+            username = name;
+            fetch(`${host}/employees/${id}`, {
+                method: 'GET',
+                headers: {
+                    'x-auth': localStorage.token
+                }
+            })
+                .then(response => {
+                    if (response.status === 200) {
+                        response
+                            .json()
+                            .then(employee => {
+                                document.getElementById('editName').setAttribute('placeholder', employee.name);
+                                document.getElementById('selectPrivilege').value = employee.privilege === 'admin' ? 1 : 2;
+                                checked = false;
+                                if (employee.disabled) {
+                                    checked = employee.disabled;
+                                    document.getElementById('editDisabled').setAttribute('checked', true);
+                                }
+                            });
+                    } else if (response.status === 600 || response.status === 602) {
+                        onLogoutPress();
+                    }
+                });
+        }
+
+        function check() {
+            checked = !checked;
+        }
+
+        function save() {
+
+            let flag = false;
+            let body = { id: employeeID };
+
+            if (changed[0]) {
+                body = { ...body, name: document.getElementById('editName').value };
+                flag = true;
+            }
+
+            if (changed[1]) {
+                const privilege = document.getElementById('selectPrivilege').value == 1 ? 'admin' : 'guest';
+                body = { ...body, privilege };
+                flag = true;
+
+                if (localStorage.username === username) {
+                    localStorage.privilege = privilege;
+                }
+            }
+
+            if (changed[2]) {
+                body = { ...body, password: document.getElementById('editPassword').value };
+                flag = true;
+            }
+
+            if (changed[3]) {
+                body = { ...body, disabled: checked ? 1 : 0 };
+                flag = true;
+            }
+
+            // flag = false;
+
+            if (flag) {
+                document
+                    .getElementById('OkBtn')
+                    .setAttribute('data-dismiss', 'modal');
+
+                fetch(`${host}/employees/edit`, {
+                    body: JSON.stringify(body),
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-auth': localStorage.token
+                    }
+                })
+                    .then(response => {
+                        if (response.status === 600 || response.status === 602) {
+                        onLogoutPress();
+                    }
+                    });
+
+
+                if (checked && changed[3]) {
+                    if (localStorage.username === username) {
+                        cancel();
+                        return onLogoutPress();
+                    }
+                }
+                cancel();
+                location.reload();
+            }
+        }
+
+        function add() {
+            let flag = true;
+
+            if (!changedAdd[0]) {
+                document.getElementById('editNameError').removeAttribute('hidden');
+                flag = false;
+            }
+
+            if (!changedAdd[1]) {
+                document.getElementById('selectPrivilegeError').removeAttribute('hidden');
+                flag = false;
+            }
+
+            if (!changedAdd[2]) {
+                document.getElementById('editPasswordError').removeAttribute('hidden');
+                flag = false;
+            }
+
+            if (flag) {
+                document
+                    .getElementById('OkBtn')
+                    .setAttribute('data-dismiss', 'modal');
+
+                const body = {
+                    name: document.getElementById('editNameAdd').value,
+                    privilege: document.getElementById('selectPrivilegeAdd').value,
+                    password: document.getElementById('editPasswordAdd').value,
+                };
+
+                fetch(`${host}/employees`, {
+                    body: JSON.stringify(body),
+                    method: 'POST',
+                    headers: {
+                        'x-auth': localStorage.token,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => {
+                        if (response.status === 600 || response.status === 602) {
+                        onLogoutPress();
+                    }
+                    });
+
+                cancel();
+                location.reload();
+            }
+        }
+
+
+
+        function cancel() {
+            for (let i = 0; i < changed.length; i++) {
+                changed[i] = 0;
+            }
+
+            document.getElementById('editName').value = '';
+            document.getElementById('selectPrivilege').value = '';
+            document.getElementById('editPassword').value = '';
+            document.getElementById('editDisabled').removeAttribute('checked');
+        }
+
+        function cancelAdd() {
+            for (let i = 0; i < changed.length; i++) {
+                changedAdd[i] = 0;
+            }
+
+            document.getElementById('editNameAdd').value = '';
+            document.getElementById('selectPrivilegeAdd').value = '';
+            document.getElementById('editPasswordAdd').value = '';
+
+            document.getElementById('editNameError').setAttribute('hidden', true);
+            document.getElementById('selectPrivilegeError').setAttribute('hidden', true);
+            document.getElementById('editPasswordError').setAttribute('hidden', true);
+        }
+
+        function searchChanged() {
+            // Declare variables 
+            var input, filter, table, tr, td, i;
+            input = document.getElementById("search");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("dataTable");
+            tr = table.getElementsByTagName("tr");
+
+            // Loop through all table rows, and hide those who don't match the search query
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+        
+        function fetchNotifications() {
+            setInterval(() => {
+                fetch(`${host}/notifications`, {
+                    method: 'GET',
+                    headers: {
+                        'x-auth': localStorage.token
+                    }
+                })
+                    .then(response => {
+                        if (response.status === 200) {
+                            response
+                                .json()
+                                .then(notifications => {
+                                    const activeNotifications = _.filter(notifications, item => !item.dismissed);
+                                    if (activeNotifications.length > 0) {
+                                        document.getElementById('active').removeAttribute('hidden');
+                                        document.getElementById('inactive').setAttribute('hidden', true);
+                                    } else {
+                                        document.getElementById('active').setAttribute('hidden', true);
+                                        document.getElementById('inactive').removeAttribute('hidden');
+                                    }
+                                });
+                        } else if (response.status === 600 || response.status === 602) {
+                            onLogoutPress();
+                        }
+                    });
+
+            }, 5 * 1000);
+
+            fetch(`${host}/notifications`, {
+                method: 'GET',
+                headers: {
+                    'x-auth': localStorage.token
+                }
+            })
+                .then(response => {
+                    if (response.status === 200) {
+                        response
+                            .json()
+                            .then(notifications => {
+                                const activeNotifications = _.filter(notifications, item => !item.dismissed);
+                                if (activeNotifications.length > 0) {
+                                    document.getElementById('active').removeAttribute('hidden');
+                                    document.getElementById('inactive').setAttribute('hidden', true);
+                                } else {
+                                    document.getElementById('active').setAttribute('hidden', true);
+                                    document.getElementById('inactive').removeAttribute('hidden');
+                                }
+                            });
+                    } else if (response.status === 600 || response.status === 602) {
+                            onLogoutPress();
+                        }
+                });
+        }
+
+
+    </script>
+</body>
+
+</html>
